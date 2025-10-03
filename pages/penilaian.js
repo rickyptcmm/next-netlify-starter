@@ -1,6 +1,100 @@
 import { useState } from 'react';
 
 export default function PenilaianKinerja() {
+  // Daftar karyawan berdasarkan data yang kamu berikan
+  const daftarKaryawan = [
+    "A. Erzanandy Pradipta Putra Irawan",
+    "Abdulloh Salim",
+    "Ach Gozali",
+    "Achmad Efendi",
+    "Achmad Faris",
+    "Achmad Reza Rizqi Muhammad",
+    "Ade Tya Putra Mahendra",
+    "Adi Apriyanto",
+    "Affan Ariansyah",
+    "Agus Mariyono",
+    "Ahmad Hakim",
+    "Ainur Rochim",
+    "Alvin Rega",
+    "Angger Sukmadi",
+    "Anton Sophian Nari",
+    "Arga Setiawan",
+    "Arif Budianto",
+    "Aris Wibowo Saputro",
+    "Bagus Sayyidilhaq A.S",
+    "Budi Yanto",
+    "Daffa Abiyoga Putra Ramadhan",
+    "Dani Soetrisno",
+    "Danny Kurniawan",
+    "Dannys Ardy Angkasa",
+    "Didik Andriyanto",
+    "Dwi Inggar Prakoso",
+    "Elvin Chrisdiantama",
+    "Fachtur Rachman",
+    "Fariz Putra Harsono",
+    "Fauzi Tri Romadhoni",
+    "Fransisco Pariama",
+    "Gunawan Winoto",
+    "Hari Purwanto",
+    "Heru",
+    "Iis Setia Apriyadi",
+    "Ilham Luthfi",
+    "Imam Suhadak",
+    "Imam Syamsuri",
+    "Irvan Novianto",
+    "Julius Adi Saputro",
+    "Kelvin Mandala Diputra",
+    "Khairul Anam",
+    "M. Chamidullah",
+    "M. Fairuz Zuhda",
+    "Miftakhul Huda",
+    "Moch Riyan Firdaus",
+    "Moch. Aldi Zakaria Bowta",
+    "Moch. Bagoes Jaya Wardhana",
+    "Moch. Ismail",
+    "Moch. Lukman",
+    "Mochamad Faizal Adi Putra",
+    "Mochamad Jainul",
+    "Mochamad Muslik",
+    "Mochamat Hillmy Nurfatih",
+    "Mochammad Wahyudi",
+    "Moh. Hilman Syahrul Falah",
+    "Muchammad Sirojudin",
+    "Muhammad Fahmi Syarif",
+    "Muhammad Fahrial Raizan Romadhon",
+    "Muhammad Muhibbuddin Wildani",
+    "Muhammad Nabil Ali Hakim",
+    "Muhammad Nur Auni",
+    "Muhammad Sandy Akbar",
+    "Muhammad Wahyu Mimbar",
+    "Nanda Rahmawan",
+    "Nasrullah",
+    "Nova Angga Haryudha Amanu",
+    "Nuryudah",
+    "Putra Satria Sukajida",
+    "Rachmat Setyawan",
+    "Renal Dewo Saputro",
+    "Reza Aji Satrio",
+    "Ridwan Aminul Fallah",
+    "Rizal Agung Utomo",
+    "Roby Nurdiansyah",
+    "Rudi Agus Setyawan",
+    "Rusdianto",
+    "Septian Maulana Akbar",
+    "Shofwan Andreanto Kasuma",
+    "Suliswanto",
+    "Tauchid",
+    "Taufiqur Rahman",
+    "Uce Rahardjo Nyoto Wibowo",
+    "Wemy Susandra",
+    "Wenas Itto Adhesa",
+    "Yulianto"
+  ].map(nama => ({
+    nama,
+    jabatan: "–",
+    departemen: "–"
+  }));
+
   const [formData, setFormData] = useState({
     // Penilai
     nama_penilai: '',
@@ -25,6 +119,30 @@ export default function PenilaianKinerja() {
 
   const [submitted, setSubmitted] = useState(false);
 
+  // Saat nama karyawan dipilih, isi otomatis jabatan & departemen
+  const handlePilihKaryawan = (e) => {
+    const nama = e.target.value;
+    if (nama === '') {
+      setFormData(prev => ({
+        ...prev,
+        nama_karyawan: '',
+        jabatan_karyawan: '',
+        departemen_karyawan: ''
+      }));
+      return;
+    }
+
+    const karyawan = daftarKaryawan.find(k => k.nama === nama);
+    if (karyawan) {
+      setFormData(prev => ({
+        ...prev,
+        nama_karyawan: karyawan.nama,
+        jabatan_karyawan: karyawan.jabatan,
+        departemen_karyawan: karyawan.departemen
+      }));
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -37,7 +155,12 @@ export default function PenilaianKinerja() {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Simpan ke localStorage
+    // Validasi: pastikan karyawan dipilih
+    if (!formData.nama_karyawan) {
+      alert('Silakan pilih nama karyawan terlebih dahulu.');
+      return;
+    }
+    
     const data = {
       ...formData,
       tanggal: new Date().toLocaleDateString('id-ID'),
@@ -92,7 +215,7 @@ export default function PenilaianKinerja() {
       <div style={styles.card}>
         <h1 style={styles.title}>📊 Penilaian Kinerja</h1>
         <p style={{ textAlign: 'center', color: '#64748b', marginBottom: '1.5rem' }}>
-          Formulir penilaian kinerja karyawan
+          Pilih karyawan dari daftar, lalu isi penilaian.
         </p>
 
         <form onSubmit={handleSubmit} style={{ width: '100%' }}>
@@ -137,20 +260,31 @@ export default function PenilaianKinerja() {
           </div>
 
           {/* === Bagian Karyawan === */}
-          <h3 style={{ ...styles.sectionTitle, marginTop: '1.5rem' }}>👥 Karyawan yang Dinilai</h3>
+          <h3 style={{ ...styles.sectionTitle, marginTop: '1.5rem' }}>👥 Pilih Karyawan</h3>
           
+          <div style={styles.formGroup}>
+            <label>Nama Karyawan</label>
+            <select
+              value={formData.nama_karyawan || ''}
+              onChange={handlePilihKaryawan}
+              required
+              style={{ ...styles.input, appearance: 'auto' }}
+            >
+              <option value="">-- Pilih karyawan --</option>
+              {daftarKaryawan.map((k, i) => (
+                <option key={i} value={k.nama}>
+                  {k.nama}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Input manual untuk jabatan & departemen */}
+          <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1rem' }}>
+            <p>Edit jabatan & departemen di bawah jika diperlukan:</p>
+          </div>
+
           <div style={styles.row}>
-            <div style={styles.half}>
-              <label>Nama Karyawan</label>
-              <input
-                type="text"
-                name="nama_karyawan"
-                value={formData.nama_karyawan}
-                onChange={handleChange}
-                required
-                style={styles.input}
-              />
-            </div>
             <div style={styles.half}>
               <label>Jabatan</label>
               <input
@@ -158,22 +292,19 @@ export default function PenilaianKinerja() {
                 name="jabatan_karyawan"
                 value={formData.jabatan_karyawan}
                 onChange={handleChange}
-                required
                 style={styles.input}
               />
             </div>
-          </div>
-          
-          <div style={styles.formGroup}>
-            <label>Departemen</label>
-            <input
-              type="text"
-              name="departemen_karyawan"
-              value={formData.departemen_karyawan}
-              onChange={handleChange}
-              required
-              style={styles.input}
-            />
+            <div style={styles.half}>
+              <label>Departemen</label>
+              <input
+                type="text"
+                name="departemen_karyawan"
+                value={formData.departemen_karyawan}
+                onChange={handleChange}
+                style={styles.input}
+              />
+            </div>
           </div>
 
           {/* === Penilaian === */}
