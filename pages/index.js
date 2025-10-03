@@ -17,7 +17,6 @@ export default function Resume() {
           <div className="contact-info">
             <a href="mailto:Rickyputraf@gmail.com" className="contact-link">Rickyputraf@gmail.com</a>
             <span className="separator">•</span>
-            <a href="tel:+6285606668161" className="contact-link">+62 856-0666-8161</a>
             <span className="separator">•</span>
             <a href="https://linkedin.com/in/ricky-putra-febrianto/" target="_blank" rel="noopener noreferrer" className="contact-link">LinkedIn</a>
             <span className="separator">•</span>
