@@ -136,7 +136,7 @@ export default function Resume() {
           <div className="education-item">
             <div className="education-header">
               <h4 className="degree">Bachelor of Psychology - Industrial and Organizational Psychology</h4>
-              <span className="education-period">2019 - 2023</span>
+              <span className="education-period"></span>
             </div>
             <p className="university">Airlangga University</p>
             <p className="education-details">
