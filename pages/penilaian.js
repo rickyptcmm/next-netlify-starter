@@ -1,7 +1,35 @@
 import { useState } from 'react';
 
 export default function PenilaianKinerja() {
-  // Daftar karyawan berdasarkan data yang kamu berikan
+  // Daftar lini untuk penilai
+  const daftarLini = [
+    "STAGING WP",
+    "Cleaning Produksi WP",
+    "V101",
+    "V102",
+    "V103",
+    "PP1",
+    "PP2",
+    "PP3",
+    "Gericke Lt. 2",
+    "PP4",
+    "PP5",
+    "Shredding Line (Lt.1)",
+    "Preparation BAG",
+    "WRAPPING WP",
+    "Labelling",
+    "STAGING EC/SL",
+    "Cleaning Produksi EC/SL",
+    "FORMULASI EC/SL",
+    "LF 1",
+    "LF 2",
+    "LF 3",
+    "LF 4",
+    "WRAPPING ECSL",
+    "SUPPORT LINE ECSL"
+  ];
+
+  // Daftar karyawan (73 nama)
   const daftarKaryawan = [
     "A. Erzanandy Pradipta Putra Irawan",
     "Abdulloh Salim",
@@ -89,80 +117,51 @@ export default function PenilaianKinerja() {
     "Wemy Susandra",
     "Wenas Itto Adhesa",
     "Yulianto"
-  ].map(nama => ({
-    nama,
-    jabatan: "–",
-    departemen: "–"
-  }));
+  ];
 
   const [formData, setFormData] = useState({
-    // Penilai
     nama_penilai: '',
-    jabatan_penilai: '',
-    departemen_penilai: '',
-    
-    // Karyawan
-    nama_karyawan: '',
-    jabatan_karyawan: '',
-    departemen_karyawan: '',
-    
-    // Penilaian
-    komunikasi: 3,
-    kerja_sama: 3,
-    inisiatif: 3,
-    ketepatan_waktu: 3,
-    kualitas_kerja: 3,
-    
-    // Catatan
-    catatan: ''
+    lini_penilai: ''
   });
+
+  const [penilaianList, setPenilaianList] = useState(
+    daftarKaryawan.map(nama => ({ nama, rating: '' }))
+  );
 
   const [submitted, setSubmitted] = useState(false);
 
-  // Saat nama karyawan dipilih, isi otomatis jabatan & departemen
-  const handlePilihKaryawan = (e) => {
-    const nama = e.target.value;
-    if (nama === '') {
-      setFormData(prev => ({
-        ...prev,
-        nama_karyawan: '',
-        jabatan_karyawan: '',
-        departemen_karyawan: ''
-      }));
-      return;
-    }
-
-    const karyawan = daftarKaryawan.find(k => k.nama === nama);
-    if (karyawan) {
-      setFormData(prev => ({
-        ...prev,
-        nama_karyawan: karyawan.nama,
-        jabatan_karyawan: karyawan.jabatan,
-        departemen_karyawan: karyawan.departemen
-      }));
-    }
-  };
-
-  const handleChange = (e) => {
+  const handlePenilaiChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleRatingChange = (kriteria, value) => {
-    setFormData(prev => ({ ...prev, [kriteria]: Number(value) }));
+  const handleRatingChange = (index, rating) => {
+    const newPenilaian = [...penilaianList];
+    newPenilaian[index].rating = rating;
+    setPenilaianList(newPenilaian);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // Validasi: pastikan karyawan dipilih
-    if (!formData.nama_karyawan) {
-      alert('Silakan pilih nama karyawan terlebih dahulu.');
+    if (!formData.nama_penilai || !formData.lini_penilai) {
+      alert('Silakan isi nama dan lini penilai.');
+      return;
+    }
+    
+    // Cek minimal 1 karyawan dinilai
+    const adaYangDinilai = penilaianList.some(p => p.rating);
+    if (!adaYangDinilai) {
+      alert('Silakan berikan penilaian untuk minimal 1 karyawan.');
       return;
     }
     
     const data = {
-      ...formData,
+      penilai: {
+        nama: formData.nama_penilai,
+        lini: formData.lini_penilai
+      },
+      penilaian: penilaianList.filter(p => p.rating), // Hanya yang dinilai
       tanggal: new Date().toLocaleDateString('id-ID'),
       timestamp: new Date().toISOString()
     };
@@ -183,20 +182,8 @@ export default function PenilaianKinerja() {
           <button 
             onClick={() => {
               setSubmitted(false);
-              setFormData({
-                nama_penilai: '',
-                jabatan_penilai: '',
-                departemen_penilai: '',
-                nama_karyawan: '',
-                jabatan_karyawan: '',
-                departemen_karyawan: '',
-                komunikasi: 3,
-                kerja_sama: 3,
-                inisiatif: 3,
-                ketepatan_waktu: 3,
-                kualitas_kerja: 3,
-                catatan: ''
-              });
+              setFormData({ nama_penilai: '', lini_penilai: '' });
+              setPenilaianList(daftarKaryawan.map(nama => ({ nama, rating: '' })));
             }}
             style={styles.button}
           >
@@ -207,159 +194,100 @@ export default function PenilaianKinerja() {
     );
   }
 
-  const total = formData.komunikasi + formData.kerja_sama + formData.inisiatif + formData.ketepatan_waktu + formData.kualitas_kerja;
-  const rataRata = (total / 5).toFixed(1);
+  // Hitung jumlah yang sudah dinilai
+  const jumlahDinilai = penilaianList.filter(p => p.rating).length;
 
   return (
     <div style={styles.container}>
       <div style={styles.card}>
         <h1 style={styles.title}>📊 Penilaian Kinerja</h1>
         <p style={{ textAlign: 'center', color: '#64748b', marginBottom: '1.5rem' }}>
-          Pilih karyawan dari daftar, lalu isi penilaian.
+          Isi data penilai, lalu berikan rating untuk karyawan yang dinilai.
         </p>
 
         <form onSubmit={handleSubmit} style={{ width: '100%' }}>
           {/* === Bagian Penilai === */}
           <h3 style={styles.sectionTitle}>👤 Identitas Penilai</h3>
           
-          <div style={styles.row}>
-            <div style={styles.half}>
-              <label>Nama Anda</label>
-              <input
-                type="text"
-                name="nama_penilai"
-                value={formData.nama_penilai}
-                onChange={handleChange}
-                required
-                style={styles.input}
-              />
-            </div>
-            <div style={styles.half}>
-              <label>Jabatan</label>
-              <input
-                type="text"
-                name="jabatan_penilai"
-                value={formData.jabatan_penilai}
-                onChange={handleChange}
-                required
-                style={styles.input}
-              />
-            </div>
-          </div>
-          
           <div style={styles.formGroup}>
-            <label>Departemen</label>
+            <label>Nama Penilai</label>
             <input
               type="text"
-              name="departemen_penilai"
-              value={formData.departemen_penilai}
-              onChange={handleChange}
+              name="nama_penilai"
+              value={formData.nama_penilai}
+              onChange={handlePenilaiChange}
               required
               style={styles.input}
             />
           </div>
 
-          {/* === Bagian Karyawan === */}
-          <h3 style={{ ...styles.sectionTitle, marginTop: '1.5rem' }}>👥 Pilih Karyawan</h3>
-          
           <div style={styles.formGroup}>
-            <label>Nama Karyawan</label>
+            <label>Lini</label>
             <select
-              value={formData.nama_karyawan || ''}
-              onChange={handlePilihKaryawan}
+              name="lini_penilai"
+              value={formData.lini_penilai}
+              onChange={handlePenilaiChange}
               required
               style={{ ...styles.input, appearance: 'auto' }}
             >
-              <option value="">-- Pilih karyawan --</option>
-              {daftarKaryawan.map((k, i) => (
-                <option key={i} value={k.nama}>
-                  {k.nama}
-                </option>
+              <option value="">-- Pilih lini --</option>
+              {daftarLini.map((lini, i) => (
+                <option key={i} value={lini}>{lini}</option>
               ))}
             </select>
           </div>
 
-          {/* Input manual untuk jabatan & departemen */}
-          <div style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1rem' }}>
-            <p>Edit jabatan & departemen di bawah jika diperlukan:</p>
+          {/* === Ringkasan === */}
+          <div style={{ textAlign: 'center', marginBottom: '1.5rem', padding: '12px', backgroundColor: '#f0fdf4', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
+            <strong>Karyawan Dinilai: {jumlahDinilai} dari {daftarKaryawan.length}</strong>
           </div>
 
-          <div style={styles.row}>
-            <div style={styles.half}>
-              <label>Jabatan</label>
-              <input
-                type="text"
-                name="jabatan_karyawan"
-                value={formData.jabatan_karyawan}
-                onChange={handleChange}
-                style={styles.input}
-              />
-            </div>
-            <div style={styles.half}>
-              <label>Departemen</label>
-              <input
-                type="text"
-                name="departemen_karyawan"
-                value={formData.departemen_karyawan}
-                onChange={handleChange}
-                style={styles.input}
-              />
-            </div>
-          </div>
+          {/* === Penilaian Semua Karyawan === */}
+          <h3 style={{ ...styles.sectionTitle, marginTop: '1.5rem' }}>⭐ Berikan Rating (A/B/C/D)</h3>
+          <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1rem', textAlign: 'center' }}>
+            A = Sangat Baik | B = Baik | C = Cukup | D = Kurang
+          </p>
 
-          {/* === Penilaian === */}
-          <h3 style={{ ...styles.sectionTitle, marginTop: '1.5rem' }}>⭐ Nilai Kinerja (1–5)</h3>
-          
-          {[
-            { key: 'komunikasi', label: 'Komunikasi & Interpersonal', desc: 'Mampu berkomunikasi secara efektif' },
-            { key: 'kerja_sama', label: 'Kerja Sama Tim', desc: 'Mampu bekerja sama dalam tim' },
-            { key: 'inisiatif', label: 'Inisiatif & Proaktif', desc: 'Menunjukkan inisiatif dalam pekerjaan' },
-            { key: 'ketepatan_waktu', label: 'Ketepatan Waktu', desc: 'Menyelesaikan tugas tepat waktu' },
-            { key: 'kualitas_kerja', label: 'Kualitas Hasil Kerja', desc: 'Menghasilkan pekerjaan berkualitas' }
-          ].map(item => (
-            <div key={item.key} style={{ marginBottom: '1rem' }}>
-              <label><strong>{item.label}</strong></label>
-              <p style={{ fontSize: '0.85rem', color: '#64748b', margin: '4px 0' }}>
-                {item.desc}
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <input
-                  type="range"
-                  min="1"
-                  max="5"
-                  value={formData[item.key]}
-                  onChange={(e) => handleRatingChange(item.key, e.target.value)}
-                  style={{ flex: 1 }}
-                />
-                <span style={{ width: '28px', textAlign: 'center', fontWeight: 'bold', fontSize: '1rem' }}>
-                  {formData[item.key]}
-                </span>
-                <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                  ({['Sangat Kurang', 'Kurang', 'Cukup', 'Baik', 'Sangat Baik'][formData[item.key] - 1]})
-                </span>
+          <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #cbd5e1', borderRadius: '8px', marginBottom: '1.5rem' }}>
+            {penilaianList.map((item, index) => (
+              <div
+                key={index}
+                style={{
+                  padding: '12px',
+                  borderBottom: index < penilaianList.length - 1 ? '1px solid #e2e8f0' : 'none',
+                  backgroundColor: item.rating ? '#f8fafc' : 'white'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ flex: 1, marginRight: '1rem' }}>{item.nama}</span>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {['A', 'B', 'C', 'D'].map(rating => (
+                      <button
+                        key={rating}
+                        type="button"
+                        onClick={() => handleRatingChange(index, rating)}
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '6px',
+                          border: '1px solid #cbd5e1',
+                          backgroundColor: item.rating === rating ? '#0d9488' : 'white',
+                          color: item.rating === rating ? 'white' : '#4b5563',
+                          fontWeight: item.rating === rating ? 'bold' : 'normal',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {rating}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
-
-          {/* Rata-rata */}
-          <div style={{ textAlign: 'center', margin: '1.5rem 0', padding: '12px', backgroundColor: '#f0fdf4', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
-            <strong>Rata-rata Nilai: {rataRata} / 5</strong>
-          </div>
-
-          {/* Catatan */}
-          <div style={styles.formGroup}>
-            <label>Catatan Tambahan (Opsional)</label>
-            <textarea
-              name="catatan"
-              value={formData.catatan}
-              onChange={handleChange}
-              rows="3"
-              style={{ ...styles.input, padding: '10px' }}
-            />
+            ))}
           </div>
 
           <button type="submit" style={{ ...styles.button, width: '100%' }}>
-            Simpan Penilaian
+            Simpan Penilaian ({jumlahDinilai} karyawan)
           </button>
         </form>
       </div>
@@ -383,7 +311,7 @@ const styles = {
     boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
     padding: '2rem',
     width: '100%',
-    maxWidth: '650px'
+    maxWidth: '700px'
   },
   title: {
     textAlign: 'center',
@@ -399,14 +327,6 @@ const styles = {
   },
   formGroup: {
     marginBottom: '1.25rem'
-  },
-  row: {
-    display: 'flex',
-    gap: '1rem',
-    marginBottom: '1.25rem'
-  },
-  half: {
-    flex: 1
   },
   input: {
     width: '100%',
