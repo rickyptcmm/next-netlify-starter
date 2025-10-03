@@ -20,6 +20,7 @@ export default function Resume() {
             <span className="separator">•</span>
             <a href="https://linkedin.com/in/ricky-putra-febrianto/" target="_blank" rel="noopener noreferrer" className="contact-link">LinkedIn</a>
             <span className="separator">•</span>
+            <span className="separator">•</span>
             <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="contact-link">Download Resume</a>
           </div>
         </div>
