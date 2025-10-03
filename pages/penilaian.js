@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 export default function PenilaianKinerja() {
   // Daftar lini untuk penilai
@@ -124,21 +124,34 @@ export default function PenilaianKinerja() {
     lini_penilai: ''
   });
 
+  const [searchKaryawan, setSearchKaryawan] = useState('');
   const [penilaianList, setPenilaianList] = useState(
     daftarKaryawan.map(nama => ({ nama, rating: '' }))
   );
 
+  const [catatan, setCatatan] = useState('');
   const [submitted, setSubmitted] = useState(false);
+
+  // Filter karyawan berdasarkan pencarian
+  const karyawanFiltered = useMemo(() => {
+    if (!searchKaryawan) return daftarKaryawan;
+    return daftarKaryawan.filter(k =>
+      k.toLowerCase().includes(searchKaryawan.toLowerCase())
+    );
+  }, [searchKaryawan]);
 
   const handlePenilaiChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleRatingChange = (index, rating) => {
+  const handleRatingChange = (nama, rating) => {
     const newPenilaian = [...penilaianList];
-    newPenilaian[index].rating = rating;
-    setPenilaianList(newPenilaian);
+    const index = newPenilaian.findIndex(p => p.nama === nama);
+    if (index !== -1) {
+      newPenilaian[index].rating = rating;
+      setPenilaianList(newPenilaian);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -161,7 +174,8 @@ export default function PenilaianKinerja() {
         nama: formData.nama_penilai,
         lini: formData.lini_penilai
       },
-      penilaian: penilaianList.filter(p => p.rating), // Hanya yang dinilai
+      penilaian: penilaianList.filter(p => p.rating),
+      catatan: catatan.trim(),
       tanggal: new Date().toLocaleDateString('id-ID'),
       timestamp: new Date().toISOString()
     };
@@ -184,6 +198,7 @@ export default function PenilaianKinerja() {
               setSubmitted(false);
               setFormData({ nama_penilai: '', lini_penilai: '' });
               setPenilaianList(daftarKaryawan.map(nama => ({ nama, rating: '' })));
+              setCatatan('');
             }}
             style={styles.button}
           >
@@ -199,11 +214,28 @@ export default function PenilaianKinerja() {
 
   return (
     <div style={styles.container}>
+      {/* Logo Shelter */}
+      <div style={styles.header}>
+        <img 
+          src="https://via.placeholder.com/120x40?text=SHELTER" 
+          alt="Shelter Logo" 
+          style={styles.logo} 
+        />
+      </div>
+
       <div style={styles.card}>
         <h1 style={styles.title}>📊 Penilaian Kinerja</h1>
-        <p style={{ textAlign: 'center', color: '#64748b', marginBottom: '1.5rem' }}>
-          Isi data penilai, lalu berikan rating untuk karyawan yang dinilai.
-        </p>
+        
+        {/* Keterangan Skala Nilai */}
+        <div style={styles.scaleBox}>
+          <h3 style={{ color: '#ffffff', marginBottom: '0.5rem' }}>📌 Keterangan Skala Nilai:</h3>
+          <div style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
+            <strong>A</strong> = Memiliki kemampuan dan inisiatif yang kuat dalam mensupport operator untuk mencapai target<br/>
+            <strong>B</strong> = Bekerja sesuai jobdesc SNI dan tidak membuat kesalahan dalam bekerja (berpengaruh RFT)<br/>
+            <strong>C</strong> = Menunggu perintah saat terjadi trouble mesin, Belum memahami system kerja di packing line, Memperlakukan lini, membuat kesalahan yang berpengaruh kepada RFT<br/>
+            <strong>D</strong> = Membuat kesalahan berat yang bisa berdampak pada product complain, Menolak perintah operator, mendelekasikan perintah ke personal lain tanpa pemberitahuan operator
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit} style={{ width: '100%' }}>
           {/* === Bagian Penilai === */}
@@ -242,48 +274,83 @@ export default function PenilaianKinerja() {
             <strong>Karyawan Dinilai: {jumlahDinilai} dari {daftarKaryawan.length}</strong>
           </div>
 
-          {/* === Penilaian Semua Karyawan === */}
-          <h3 style={{ ...styles.sectionTitle, marginTop: '1.5rem' }}>⭐ Berikan Rating (A/B/C/D)</h3>
+          {/* === Pencarian Karyawan === */}
+          <h3 style={{ ...styles.sectionTitle, marginTop: '1.5rem' }}>🔍 Cari & Pilih Karyawan</h3>
+          
+          <div style={styles.formGroup}>
+            <label>Cari Nama Karyawan</label>
+            <input
+              type="text"
+              value={searchKaryawan}
+              onChange={(e) => setSearchKaryawan(e.target.value)}
+              placeholder="Ketik nama karyawan..."
+              style={styles.input}
+            />
+          </div>
+
+          {/* === Daftar Karyawan === */}
+          <h3 style={{ ...styles.sectionTitle, marginTop: '1rem' }}>⭐ Berikan Rating (A/B/C/D)</h3>
           <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1rem', textAlign: 'center' }}>
             A = Sangat Baik | B = Baik | C = Cukup | D = Kurang
           </p>
 
-          <div style={{ maxHeight: '400px', overflowY: 'auto', border: '1px solid #cbd5e1', borderRadius: '8px', marginBottom: '1.5rem' }}>
-            {penilaianList.map((item, index) => (
-              <div
-                key={index}
-                style={{
-                  padding: '12px',
-                  borderBottom: index < penilaianList.length - 1 ? '1px solid #e2e8f0' : 'none',
-                  backgroundColor: item.rating ? '#f8fafc' : 'white'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ flex: 1, marginRight: '1rem' }}>{item.nama}</span>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {['A', 'B', 'C', 'D'].map(rating => (
-                      <button
-                        key={rating}
-                        type="button"
-                        onClick={() => handleRatingChange(index, rating)}
-                        style={{
-                          width: '36px',
-                          height: '36px',
-                          borderRadius: '6px',
-                          border: '1px solid #cbd5e1',
-                          backgroundColor: item.rating === rating ? '#0d9488' : 'white',
-                          color: item.rating === rating ? 'white' : '#4b5563',
-                          fontWeight: item.rating === rating ? 'bold' : 'normal',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {rating}
-                      </button>
-                    ))}
+          <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #cbd5e1', borderRadius: '8px', marginBottom: '1.5rem' }}>
+            {karyawanFiltered.length > 0 ? (
+              karyawanFiltered.map((nama, index) => {
+                const item = penilaianList.find(p => p.nama === nama);
+                return (
+                  <div
+                    key={index}
+                    style={{
+                      padding: '12px',
+                      borderBottom: index < karyawanFiltered.length - 1 ? '1px solid #e2e8f0' : 'none',
+                      backgroundColor: item?.rating ? '#f8fafc' : 'white'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ flex: 1, marginRight: '1rem' }}>{nama}</span>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        {['A', 'B', 'C', 'D'].map(rating => (
+                          <button
+                            key={rating}
+                            type="button"
+                            onClick={() => handleRatingChange(nama, rating)}
+                            style={{
+                              width: '36px',
+                              height: '36px',
+                              borderRadius: '6px',
+                              border: '1px solid #cbd5e1',
+                              backgroundColor: item?.rating === rating ? '#0d9488' : 'white',
+                              color: item?.rating === rating ? 'white' : '#4b5563',
+                              fontWeight: item?.rating === rating ? 'bold' : 'normal',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {rating}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                );
+              })
+            ) : (
+              <div style={{ padding: '10px 12px', color: '#64748b' }}>
+                Karyawan tidak ditemukan
               </div>
-            ))}
+            )}
+          </div>
+
+          {/* === Catatan === */}
+          <h3 style={{ ...styles.sectionTitle, marginTop: '1.5rem' }}>📝 Catatan Tambahan</h3>
+          <div style={styles.formGroup}>
+            <textarea
+              value={catatan}
+              onChange={(e) => setCatatan(e.target.value)}
+              rows="4"
+              placeholder="Catatan tambahan (opsional)"
+              style={{ ...styles.input, padding: '10px' }}
+            />
           </div>
 
           <button type="submit" style={{ ...styles.button, width: '100%' }}>
@@ -300,10 +367,24 @@ const styles = {
   container: {
     minHeight: '100vh',
     display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f8fafc',
     padding: '1rem'
+  },
+  header: {
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    padding: '1rem 2rem',
+    backgroundColor: 'white',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+  },
+  logo: {
+    height: '40px',
+    objectFit: 'contain'
   },
   card: {
     backgroundColor: 'white',
@@ -324,6 +405,14 @@ const styles = {
     marginBottom: '1rem',
     borderBottom: '1px solid #e2e8f0',
     paddingBottom: '0.5rem'
+  },
+  scaleBox: {
+    backgroundColor: '#0d9488',
+    color: 'white',
+    padding: '1rem',
+    borderRadius: '8px',
+    marginBottom: '1.5rem',
+    fontSize: '0.9rem'
   },
   formGroup: {
     marginBottom: '1.25rem'
