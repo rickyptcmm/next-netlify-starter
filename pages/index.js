@@ -10,18 +10,50 @@ export default function Resume() {
       </Head>
 
       <header className="hero-section">
-        <div className="hero-content">
-          <h1 className="name">Ricky Putra F.</h1>
-          <h2 className="title">HR Professional & Relationship Officer</h2>
-          <p className="tagline">Specializing in recruitment, workforce management, and organizational psychology</p>
-          <div className="contact-info">
-            <a href="mailto:Rickyputraf@gmail.com" className="contact-link">Rickyputraf@gmail.com</a>
-            <span className="separator">•</span>
-            <span className="separator">•</span>
-            <a href="https://linkedin.com/in/ricky-putra-febrianto/" target="_blank" rel="noopener noreferrer" className="contact-link">LinkedIn</a>
-            <span className="separator">•</span>
-            <span className="separator">•</span>
-            <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="contact-link">Download Resume</a>
+        <div className="hero-content-wrapper">
+          {/* Foto Profil */}
+          <div className="profile-photo">
+            <img 
+              src="/images/profile.jpg" 
+              alt="Ricky Putra F. - HR Professional" 
+              className="profile-img"
+            />
+          </div>
+
+          {/* Informasi Utama */}
+          <div className="hero-text">
+            <h1 className="name">Ricky Putra F.</h1>
+            <h2 className="title">HR Professional & Relationship Officer</h2>
+            <p className="tagline">Specializing in recruitment, workforce management, and organizational psychology</p>
+            <div className="contact-info">
+              <a 
+                href="mailto:Rickyputraf@gmail.com" 
+                className="contact-link"
+                aria-label="Email Ricky Putra F."
+              >
+                Rickyputraf@gmail.com
+              </a>
+              <span className="separator">•</span>
+              <a 
+                href="https://linkedin.com/in/ricky-putra-febrianto/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="contact-link"
+                aria-label="Visit Ricky Putra F.'s LinkedIn profile"
+              >
+                LinkedIn
+              </a>
+              <span className="separator">•</span>
+              <a 
+                href="/resume.pdf" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="contact-link"
+                aria-label="Download Ricky Putra F.'s resume PDF"
+              >
+                Download Resume
+              </a>
+            </div>
           </div>
         </div>
       </header>
@@ -141,42 +173,4 @@ export default function Resume() {
             <p className="university">Airlangga University</p>
             <p className="education-details">
               Specialization in Industrial and Organizational Psychology, focusing on human behavior in organizational contexts 
-              and the impact of behavior on companies with practical solution implementation.
-            </p>
-          </div>
-        </section>
-
-        <section className="section">
-          <h3 className="section-title">Certifications</h3>
-          <div className="certification-item">
-            <h4 className="certification-title">HR Staff Certified BNSP</h4>
-            <p className="certification-issuer">BNSP (Badan Nasional Sertifikasi Profesi)</p>
-            <p className="certification-description">
-              Professional certification in Human Resources management, validating competency in HR practices and standards.
-            </p>
-          </div>
-
-          <div className="certification-item">
-            <h4 className="certification-title">Teknik Competency-Based Interview dalam Proses Rekrutmen</h4>
-            <p className="certification-issuer">Mekari University</p>
-            <p className="certification-description">
-              Specialized training in competency-based interviewing techniques for effective recruitment and selection processes.
-            </p>
-          </div>
-
-          <div className="certification-item">
-            <h4 className="certification-title">Managing a Multigenerational Workforce</h4>
-            <p className="certification-issuer">LinkedIn Learning</p>
-            <p className="certification-description">
-              Professional development course focused on managing diverse generational groups in the workplace effectively.
-            </p>
-          </div>
-        </section>
-      </main>
-
-      <footer className="footer">
-        <p>&copy; 2025 Ricky Putra F. All rights reserved.</p>
-      </footer>
-    </div>
-  )
-}
+              and the impact of behavior on companies with pra
