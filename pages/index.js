@@ -12,7 +12,6 @@ export default function Resume() {
         <link rel="icon" href="/favicon.ico" />
         <meta property="og:title" content="Ricky Putra F. - HR Professional" />
         <meta property="og:description" content="Specializing in compliant, scalable, and human-centered HR solutions." />
-        <meta property="og:image" content="/images/profile.jpg" />
       </Head>
 
       <header className="hero-section">
